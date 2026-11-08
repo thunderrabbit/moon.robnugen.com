@@ -37,9 +37,15 @@ This is a minimalist PHP web application framework designed for DreamHost deploy
 
 ### Getting the site onto the server
 
-- The first copy of a new site is a manual `rsync -a ./ <HOST>:<DEST_PATH>/` — **with
-  `.git`, never `--exclude .git`**. The installed site is meant to be a real repo with its
-  full history; `.git/` sits above the web root, so it is not web-readable.
+- The first copy of a new site is made **by git, in the directory the panel created**:
+  `git init`, `git remote add origin git@github.com:<owner>/<name>.git`, `git fetch origin`,
+  `git checkout -f -B master origin/master`. `git clone` refuses that directory (the panel
+  put favicons and a root-owned `.dh-diag` symlink in `wwwroot/`), and nothing may delete
+  `.dh-diag`. Never `rsync` the tree. The installed site is a real repo with its full
+  history; `.git/` sits above the web root, so it is not web-readable.
+- The server pulls over ssh with a deploy key (`~/.ssh/id_ed25519` on the server, added to
+  the GitHub repo with write access). `bootstrap_token.txt` and `Config.php` are gitignored
+  and go up by `scp`. The `setup-this-new-site` skill drives all of this.
 - `DEST_PATH` is the **project root** on the server (the directory holding `wwwroot/`,
   `classes/`, `prepend.php`), not the web root.
 
@@ -51,7 +57,7 @@ This is a minimalist PHP web application framework designed for DreamHost deploy
 3. First visit applies the `00` and `01` schemas, creating `applied_DB_versions`, `users`, `cookies`
 4. The first admin is **not** created automatically. With `users` empty, every URL redirects to
    `/login/register.php`, which refuses to register anyone unless `bootstrap_token.txt` is present
-   in `$app_path` (above the web root). The operator generates that file locally and rsyncs it up
+   in `$app_path` (above the web root). The operator generates that file locally and copies it up with `scp`
    before deploying; the site never creates it. Deleted once the admin exists, and never consulted
    again afterwards. The public page must not disclose the token's path or the ssh username.
 
@@ -198,15 +204,17 @@ the current file. The URL only has to change.
 
 ### Deploying a branch
 - `deploy_to_dh.sh` pushes the current branch to `origin`, then over ssh runs
-  `git restore .` and `git pull` in the server's checkout. The server pulls over https,
-  so a public repo needs no GitHub key there.
+  `git restore .` and `git pull` in the server's checkout. With `PULL_URL` empty the server
+  pulls over https, so a public repo needs no GitHub key there; `PULL_URL="origin"` pulls
+  over ssh with the server's deploy key.
 - A clone fills in `DEST` and `DEST_PATH` and **commits** them. The script refuses to run
   while `DEST` is still `"example"`.
 - **Only this template repo** (`new-DH-user-site`, checked out as base.robnugen.com) keeps
   `example` committed. Its filled-in copy is hidden with
   `git update-index --skip-worktree deploy_to_dh.sh`; `--no-skip-worktree` it, restore the
   placeholders, commit, then refill and re-hide. Never commit a real host here.
-- It updates an installed site only. The first install is the manual `rsync` with `.git`.
+- It updates an installed site only. The first install is the git checkout above. A site
+  whose server has a deploy key sets `PULL_URL="origin"`.
 
 ### Database Operations
 - Visit `/admin/migrate_tables.php` to manually apply pending migrations

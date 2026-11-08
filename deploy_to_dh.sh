@@ -12,16 +12,17 @@
 #
 # (`--no-skip-worktree` undoes that, to commit a change to this script.)
 #
-# This only updates an installed site. The first install is still the manual
-# `rsync -a ./ <DEST>:<DEST_PATH>/`, with .git, never --exclude .git.
+# This only updates an installed site. The first install is by git too: see
+# README.md, *First install* (init, remote, fetch, checkout in the directory the
+# panel made; never rsync the tree). The setup-this-new-site skill drives it.
 set -e
 
 DEST="example"             # an ssh Host from ~/.ssh/config
 DEST_PATH="example.com"    # project root on the server, relative to ~
 
-# The server pulls over https, so a public repo needs no GitHub key on the
-# DreamHost user. A private repo sets this to "origin" and gives the server
-# a deploy key.
+# Empty: the server pulls over https, which needs no GitHub key on the
+# DreamHost user but only works for a public repo. "origin": the server pulls
+# over ssh with its deploy key, public or private. New sites set "origin".
 PULL_URL=""
 
 cd "$(dirname "$0")"
