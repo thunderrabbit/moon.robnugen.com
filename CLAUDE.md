@@ -35,22 +35,19 @@ This is a minimalist PHP web application framework designed for DreamHost deploy
 
 ## Development Workflow
 
-### Editing against a live server
+### Getting the site onto the server
 
-- `sync_files_to_dh_sample.sh` watches this working copy and copies each **saved file**
-  to the server, one at a time. It is **not** a deploy script: it does not sync the tree,
-  delete anything, or know about git. The first bulk copy of a new site is a separate,
-  manual `rsync -a ./ <HOST>:<DEST_PATH>/` — **with `.git`, never `--exclude .git`**. The
-  installed site is meant to be a real repo with its full history; `.git/` sits above the
-  web root, so it is not web-readable.
-- Copy the sample to `sync_files_to_<HOST>.sh`, where `<HOST>` is an ssh `Host` from
-  `~/.ssh/config`. Those copies are gitignored, so the username, host, and key path stay
-  out of the repo.
-- It watches `close_write` **and** `moved_to`, because the Write tool (and emacs, and vim)
-  saves by writing a temp file and renaming it into place. Watching `close_write` alone
-  copies the temp file and never the real one.
-- Transfer is `rsync --relative --secluded-args`, not `scp`: `--relative` creates missing
-  remote directories, and `--secluded-args` keeps filenames away from the remote shell.
+- The first copy of a new site is made **by git, in the directory the panel created**:
+  `git init`, `git remote add origin git@github.com:<owner>/<name>.git`, `git fetch origin`,
+  `git checkout -f -B master origin/master`. `git clone` refuses that directory (the panel
+  put favicons and a root-owned `.dh-diag` symlink in `wwwroot/`), and nothing may delete
+  `.dh-diag`. Never `rsync` the tree. The installed site is a real repo with its full
+  history; `.git/` sits above the web root, so it is not web-readable.
+- The server pulls over ssh with a deploy key (`~/.ssh/id_ed25519` on the server, added to
+  the GitHub repo with write access). `bootstrap_token.txt` and `Config.php` are gitignored
+  and go up by `scp`. The `setup-this-new-site` skill drives all of this.
+- `DEST_PATH` is the **project root** on the server (the directory holding `wwwroot/`,
+  `classes/`, `prepend.php`), not the web root.
 
 ### Initial Setup
 
@@ -60,7 +57,7 @@ This is a minimalist PHP web application framework designed for DreamHost deploy
 3. First visit applies the `00` and `01` schemas, creating `applied_DB_versions`, `users`, `cookies`
 4. The first admin is **not** created automatically. With `users` empty, every URL redirects to
    `/login/register.php`, which refuses to register anyone unless `bootstrap_token.txt` is present
-   in `$app_path` (above the web root). The operator generates that file locally and rsyncs it up
+   in `$app_path` (above the web root). The operator generates that file locally and copies it up with `scp`
    before deploying; the site never creates it. Deleted once the admin exists, and never consulted
    again afterwards. The public page must not disclose the token's path or the ssh username.
 
@@ -205,13 +202,19 @@ the current file. The URL only has to change.
 - Debug mode: Add `?debug=1` to any URL for additional debugging output
 - Use `print_rob($variable)` function for debugging (similar to `var_dump` but formatted)
 
-### Getting a saved file onto the server
-- Copy `sync_files_to_dh_sample.sh` to `sync_files_to_<HOST>.sh`, set `DEST` and
-  `DEST_PATH` in it, and leave it running in a terminal while you work. Your copy is
-  gitignored; the sample is not.
-- `DEST_PATH` is the **project root** on the server (the directory holding `wwwroot/`,
-  `classes/`, `prepend.php`), not the web root.
-- Do not deploy by pushing to a git remote. Commits are for history, not transport.
+### Deploying a branch
+- `deploy_to_dh.sh` pushes the current branch to `origin`, then over ssh runs
+  `git restore .` and `git pull` in the server's checkout. With `PULL_URL` empty the server
+  pulls over https, so a public repo needs no GitHub key there; `PULL_URL="origin"` pulls
+  over ssh with the server's deploy key.
+- A clone fills in `DEST` and `DEST_PATH` and **commits** them. The script refuses to run
+  while `DEST` is still `"example"`.
+- **Only this template repo** (`new-DH-user-site`, checked out as base.robnugen.com) keeps
+  `example` committed. Its filled-in copy is hidden with
+  `git update-index --skip-worktree deploy_to_dh.sh`; `--no-skip-worktree` it, restore the
+  placeholders, commit, then refill and re-hide. Never commit a real host here.
+- It updates an installed site only. The first install is the git checkout above. A site
+  whose server has a deploy key sets `PULL_URL="origin"`.
 
 ### Database Operations
 - Visit `/admin/migrate_tables.php` to manually apply pending migrations

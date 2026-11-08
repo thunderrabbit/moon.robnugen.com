@@ -59,27 +59,38 @@ and a clean layout system with cookie-based authentication.
    it is never web-readable. The site does not create this file and cannot be registered
    without it.
 
-   Now copy the whole tree to the server — **including `.git`**:
+   Now give the server its copy, **by git**. The panel has already made
+   `/home/dh_user/example.com/wwwroot/` (with two empty favicons and a root-owned
+   `.dh-diag` symlink in it), so `git clone` refuses the directory. Instead, on the
+   server:
 
    ```bash
-   rsync -a ./ example:/home/dh_user/example.com/
+   cd ~/example.com
+   git init
+   git remote add origin git@github.com:owner/example.com.git
+   git fetch origin
+   git checkout -f -B master origin/master
    ```
 
-   where `example` is an ssh `Host` you have defined in `~/.ssh/config`. The token goes up
-   with everything else — `rsync` does not read `.gitignore`.
+   The server pulls over ssh with a **deploy key**: generate one there
+   (`ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519`), add its `.pub` to the repo on
+   GitHub as a deploy key with write access, and trust GitHub's host keys in
+   `~/.ssh/known_hosts`. Nothing is deleted, so `.dh-diag` is never touched; it and
+   the favicons are in `.gitignore`.
 
-   **Do not `--exclude .git`.** The server gets the full history, so the installed site is a
-   real repo: you can `git log` it, `git diff` a hand-edit made in a panic at 2am, and see
-   at a glance whether the running code matches a commit. A copy without history is a dead
-   tree — the one thing you cannot reconstruct later by re-syncing.
+   The server gets the full history, so the installed site is a real repo: you can
+   `git log` it, `git diff` a hand-edit made in a panic at 2am, and see at a glance
+   whether the running code matches a commit. `.git/` lives in the project root,
+   which is **above** the web root, exactly like `classes/` and the token. Verify
+   after the first checkout that `https://example.com/.git/config` returns 404.
 
-   This costs nothing in exposure: `.git/` lives in the project root, which is **above** the
-   web root, exactly like `classes/` and the token. Verify after the first sync that
-   `https://example.com/.git/config` returns 404.
+   The token is gitignored, so copy it up by hand:
 
-   ⚠️ The target directory may already contain DreamHost's own `.dh-diag → /dh/web/diag`
-   symlink, which is owned by `root`. Do not try to remove it, and do not `git clone`
-   over the top of it.
+   ```bash
+   scp bootstrap_token.txt example:example.com/
+   ```
+
+   where `example` is an ssh `Host` you have defined in `~/.ssh/config`.
 
 5. **Create `classes/Config/Config.php`** from `classes/Config/ConfigSample.php` and fill it in.
    Nothing runs without this file — `prepend.php` constructs `\Config` on line one of real work.
@@ -93,7 +104,8 @@ and a clean layout system with cookie-based authentication.
    | `$app_path` | Project root on the server, e.g. `/home/dh_user/example.com` |
    | `$dbHost` `$dbUser` `$dbPass` `$dbName` | Read directly by `Database\Base::getPDO()` |
 
-   It holds a plaintext DB password, so it is gitignored. `chmod 600` it.
+   It holds a plaintext DB password, so it is gitignored: write it locally, `scp` it to
+   `example:example.com/classes/Config/`, and `chmod 600` it there.
 
 6. **Visit `/`.** With no `applied_DB_versions` table, `DBExistaroo` applies the `00` and
    `01` schemas, creating `applied_DB_versions`, `users`, `cookies` (with server-side expiry), and
@@ -106,11 +118,11 @@ and a clean layout system with cookie-based authentication.
    The page tells an anonymous visitor nothing about where the token lives.
 
    The server deletes its copy once the admin exists, and after that the value is never
-   consulted again — so a later `rsync` that restores the file is inert.
+   consulted again — so a later `scp` that restores the file is inert.
 
 8. **Delete your local copy** of `bootstrap_token.txt`. It has done its job.
 
-   If you ever lose the token before creating the admin, generate a new one and re-sync it.
+   If you ever lose the token before creating the admin, generate a new one and `scp` it up.
    Nothing on the server needs to be cleaned up first.
 
 ### Who may register
@@ -126,33 +138,29 @@ Everyone after that is governed by `$allow_registration` in `classes/Config/Conf
 | `false` | 403, on both GET and POST |
 
 The moment you create the first admin, the page tells you which way it is set, and the admin
-dashboard repeats it on every visit. Change the value and re-sync `Config.php` — no other step.
+dashboard repeats it on every visit. Change the value and `scp` `Config.php` up again — no other step.
 
 A `Config.php` written before this property existed also behaves as `true`, so upgrading an existing
 site never silently locks its users out.
 
 ---
 
-## ✏️ Editing an installed site
+## 🚀 Deploying a branch
 
-`sync_files_to_dh_sample.sh` watches your working copy and copies **each file you save** up
-to the server. It is not a deploy script: it does not sync the tree, delete anything, or
-know about git. The bulk copy in step 4 is a one-time job.
+`deploy_to_dh.sh` pushes the current branch to `origin`, then pulls it on the server over
+ssh (after a `git restore .` there). The server pulls over https, so a public repo needs
+no GitHub key on the DreamHost user.
 
 ```bash
-cp sync_files_to_dh_sample.sh sync_files_to_bc.sh   # 'bc' = an ssh Host in ~/.ssh/config
-# edit DEST and DEST_PATH inside it
-./sync_files_to_bc.sh                               # leave running in a spare terminal
+# edit DEST and DEST_PATH inside it, commit that, then:
+./deploy_to_dh.sh
 ```
 
-Name the copy after the ssh `Host` it points at, so a glance at the filename tells you which
-server you are about to write to. Your copies are gitignored; the sample is not. Keep the
-username, hostname, and key path in `~/.ssh/config`, never in the script.
-
-`DEST_PATH` is the **project root** on the server (the directory containing `wwwroot/`,
-`classes/`, `prepend.php`), not the web root.
-
-Do not deploy by pushing to a git remote. Commits are for history, not for transport.
+In your own site, commit the filled-in script. Only the `new-DH-user-site` template keeps
+`DEST="example"` committed (it hides its own filled-in copy with
+`git update-index --skip-worktree deploy_to_dh.sh`), so clones don't inherit its host.
+It only updates an installed site; the first copy is the git checkout in step 4. A site
+whose server has a deploy key sets `PULL_URL="origin"` so the pull goes over ssh.
 
 ---
 
