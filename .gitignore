@@ -1,6 +1,7 @@
 .plandex/
 .aider*
 php*.sh
+!phpmyadmin-open.sh
 classes/Config/Config.php
 bootstrap_token.txt
 wwwroot/.dh-diag
