@@ -1,6 +1,5 @@
 .plandex/
 .aider*
-sync_files_to_*.sh
 php*.sh
 classes/Config/Config.php
 bootstrap_token.txt
