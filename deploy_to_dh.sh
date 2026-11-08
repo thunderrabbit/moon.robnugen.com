@@ -17,13 +17,13 @@
 # panel made; never rsync the tree). The setup-this-new-site skill drives it.
 set -e
 
-DEST="example"             # an ssh Host from ~/.ssh/config
-DEST_PATH="example.com"    # project root on the server, relative to ~
+DEST="moon"                # an ssh Host from ~/.ssh/config
+DEST_PATH="moon.robnugen.com"    # project root on the server, relative to ~
 
 # Empty: the server pulls over https, which needs no GitHub key on the
 # DreamHost user but only works for a public repo. "origin": the server pulls
 # over ssh with its deploy key, public or private. New sites set "origin".
-PULL_URL=""
+PULL_URL="origin"
 
 cd "$(dirname "$0")"
 
