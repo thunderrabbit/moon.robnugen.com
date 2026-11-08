@@ -35,22 +35,13 @@ This is a minimalist PHP web application framework designed for DreamHost deploy
 
 ## Development Workflow
 
-### Editing against a live server
+### Getting the site onto the server
 
-- `sync_files_to_dh_sample.sh` watches this working copy and copies each **saved file**
-  to the server, one at a time. It is **not** a deploy script: it does not sync the tree,
-  delete anything, or know about git. The first bulk copy of a new site is a separate,
-  manual `rsync -a ./ <HOST>:<DEST_PATH>/` — **with `.git`, never `--exclude .git`**. The
-  installed site is meant to be a real repo with its full history; `.git/` sits above the
-  web root, so it is not web-readable.
-- Copy the sample to `sync_files_to_<HOST>.sh`, where `<HOST>` is an ssh `Host` from
-  `~/.ssh/config`. Those copies are gitignored, so the username, host, and key path stay
-  out of the repo.
-- It watches `close_write` **and** `moved_to`, because the Write tool (and emacs, and vim)
-  saves by writing a temp file and renaming it into place. Watching `close_write` alone
-  copies the temp file and never the real one.
-- Transfer is `rsync --relative --secluded-args`, not `scp`: `--relative` creates missing
-  remote directories, and `--secluded-args` keeps filenames away from the remote shell.
+- The first copy of a new site is a manual `rsync -a ./ <HOST>:<DEST_PATH>/` — **with
+  `.git`, never `--exclude .git`**. The installed site is meant to be a real repo with its
+  full history; `.git/` sits above the web root, so it is not web-readable.
+- `DEST_PATH` is the **project root** on the server (the directory holding `wwwroot/`,
+  `classes/`, `prepend.php`), not the web root.
 
 ### Initial Setup
 
@@ -205,12 +196,6 @@ the current file. The URL only has to change.
 - Debug mode: Add `?debug=1` to any URL for additional debugging output
 - Use `print_rob($variable)` function for debugging (similar to `var_dump` but formatted)
 
-### Getting a saved file onto the server
-- Copy `sync_files_to_dh_sample.sh` to `sync_files_to_<HOST>.sh`, set `DEST` and
-  `DEST_PATH` in it, and leave it running in a terminal while you work. Your copy is
-  gitignored; the sample is not.
-- `DEST_PATH` is the **project root** on the server (the directory holding `wwwroot/`,
-  `classes/`, `prepend.php`), not the web root.
 ### Deploying a branch
 - `deploy_to_dh.sh` pushes the current branch to `origin`, then over ssh runs
   `git restore .` and `git pull` in the server's checkout. The server pulls over https,

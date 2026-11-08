@@ -133,25 +133,6 @@ site never silently locks its users out.
 
 ---
 
-## ✏️ Editing an installed site
-
-`sync_files_to_dh_sample.sh` watches your working copy and copies **each file you save** up
-to the server. It is not a deploy script: it does not sync the tree, delete anything, or
-know about git. The bulk copy in step 4 is a one-time job.
-
-```bash
-cp sync_files_to_dh_sample.sh sync_files_to_bc.sh   # 'bc' = an ssh Host in ~/.ssh/config
-# edit DEST and DEST_PATH inside it
-./sync_files_to_bc.sh                               # leave running in a spare terminal
-```
-
-Name the copy after the ssh `Host` it points at, so a glance at the filename tells you which
-server you are about to write to. Your copies are gitignored; the sample is not. Keep the
-username, hostname, and key path in `~/.ssh/config`, never in the script.
-
-`DEST_PATH` is the **project root** on the server (the directory containing `wwwroot/`,
-`classes/`, `prepend.php`), not the web root.
-
 ## 🚀 Deploying a branch
 
 `deploy_to_dh.sh` pushes the current branch to `origin`, then pulls it on the server over
