@@ -211,7 +211,17 @@ the current file. The URL only has to change.
   gitignored; the sample is not.
 - `DEST_PATH` is the **project root** on the server (the directory holding `wwwroot/`,
   `classes/`, `prepend.php`), not the web root.
-- Do not deploy by pushing to a git remote. Commits are for history, not transport.
+### Deploying a branch
+- `deploy_to_dh.sh` pushes the current branch to `origin`, then over ssh runs
+  `git restore .` and `git pull` in the server's checkout. The server pulls over https,
+  so a public repo needs no GitHub key there.
+- A clone fills in `DEST` and `DEST_PATH` and **commits** them. The script refuses to run
+  while `DEST` is still `"example"`.
+- **Only this template repo** (`new-DH-user-site`, checked out as base.robnugen.com) keeps
+  `example` committed. Its filled-in copy is hidden with
+  `git update-index --skip-worktree deploy_to_dh.sh`; `--no-skip-worktree` it, restore the
+  placeholders, commit, then refill and re-hide. Never commit a real host here.
+- It updates an installed site only. The first install is the manual `rsync` with `.git`.
 
 ### Database Operations
 - Visit `/admin/migrate_tables.php` to manually apply pending migrations

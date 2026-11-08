@@ -152,7 +152,21 @@ username, hostname, and key path in `~/.ssh/config`, never in the script.
 `DEST_PATH` is the **project root** on the server (the directory containing `wwwroot/`,
 `classes/`, `prepend.php`), not the web root.
 
-Do not deploy by pushing to a git remote. Commits are for history, not for transport.
+## 🚀 Deploying a branch
+
+`deploy_to_dh.sh` pushes the current branch to `origin`, then pulls it on the server over
+ssh (after a `git restore .` there). The server pulls over https, so a public repo needs
+no GitHub key on the DreamHost user.
+
+```bash
+# edit DEST and DEST_PATH inside it, commit that, then:
+./deploy_to_dh.sh
+```
+
+In your own site, commit the filled-in script. Only the `new-DH-user-site` template keeps
+`DEST="example"` committed (it hides its own filled-in copy with
+`git update-index --skip-worktree deploy_to_dh.sh`), so clones don't inherit its host.
+It only updates an installed site; the first copy is still the `rsync` in step 4.
 
 ---
 
