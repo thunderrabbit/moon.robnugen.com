@@ -107,9 +107,13 @@ This is a minimalist PHP web application framework designed for DreamHost deploy
 - **Enforced centrally in `prepend.php`**: every POST/PUT/PATCH/DELETE is rejected with 403
   unless it carries the token, before any page code or DB work runs. A handler does not
   need to check anything, and cannot forget to.
-- Forms: write `<?= csrf_field() ?>` inside the `<form>`. `fetch()` callers: send the
-  `X-CSRF-Token` header with `csrf_token()` (always `json_encode()` it into JS). See
+- Every `View\Template` is built with the protector (`new \View\Template(config: $config,
+  csrf: $csrfProtect)`) and hands it to its template as `$csrf`. Forms: write
+  `<?= $csrf->field() ?>` inside the `<form>`. `fetch()` callers: send the `X-CSRF-Token`
+  header with `$csrf->getToken()` (always `json_encode()` it into JS). See
   `templates/admin/migrate_tables.tpl.php`.
+- No `global` and no `$GLOBALS` (mg's MLAPHP step): a function takes what it needs as a
+  parameter, a class as a constructor argument, a template as a `set()` variable.
 - `/login/register.php` skips `prepend.php`, so it starts the session and checks the token
   itself, and only on the open-registration path. The first-admin path is gated by the
   bootstrap token instead.
