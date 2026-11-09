@@ -19,13 +19,13 @@ namespace Database;
 class CookieRepository
 {
     /** MySQL: unknown column. */
-    private const SQLSTATE_NO_COLUMN = '42S22';
+    private const string SQLSTATE_NO_COLUMN = '42S22';
 
     /** VARCHAR width of `cookies`.`user_agent`. */
-    private const USER_AGENT_WIDTH = 255;
+    private const int USER_AGENT_WIDTH = 255;
 
     /** How stale `last_access` may get before touch() writes it again. */
-    private const TOUCH_EVERY_SECONDS = 3600;
+    private const int TOUCH_EVERY_SECONDS = 3600;
 
     private \DateTimeImmutable $now;
 

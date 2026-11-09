@@ -11,11 +11,11 @@ use Codeception\Test\Unit;
  */
 class CookieRepositoryTest extends Unit
 {
-    private const DAY = 86400;
-    private const IP = "\xCB\x00\x71\x07";   // 203.0.113.7 as inet_pton()
-    private const UA = 'd41d8cd98f00b204e9800998ecf8427e';
+    private const int DAY = 86400;
+    private const string IP = "\xCB\x00\x71\x07";   // 203.0.113.7 as inet_pton()
+    private const string UA = 'd41d8cd98f00b204e9800998ecf8427e';
 
-    private const PHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Safari/604.1';
+    private const string PHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Safari/604.1';
 
     private \PDO $pdo;
     private \DateTimeImmutable $t0;

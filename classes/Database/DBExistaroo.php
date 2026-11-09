@@ -6,7 +6,7 @@ namespace Database;
 
 class DBExistaroo
 {
-    private const AUTOMATIC_SCHEMA_PREFIXES = [
+    private const array AUTOMATIC_SCHEMA_PREFIXES = [
         "00",
         "01",
     ];
