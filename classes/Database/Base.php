@@ -52,7 +52,7 @@ class Base
             \PDO::ATTR_EMULATE_PREPARES => false,
         ]);
 
-        $offset_minutes = intdiv((new \DateTime())->getOffset(), 60);
+        $offset_minutes = intdiv(new \DateTime()->getOffset(), 60);
         $pdo->exec(sprintf(
             "SET time_zone='%s%d:%02d'",
             $offset_minutes < 0 ? '-' : '+',
