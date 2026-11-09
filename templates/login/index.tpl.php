@@ -19,7 +19,7 @@
                 </div>
                 <?php endif; ?>
                 <form action="" id="valid" class="mainForm" method="POST">
-                    <?= csrf_field() ?>
+                    <?= $csrf->field() ?>
                     <fieldset>
                         <div class="PageRow noborder">
                             <label for="req1">Username:</label>
