@@ -11,19 +11,20 @@ include_once $matches[1] . '/prepend.php';
  * Set up by prepend.php.
  *
  * @var \Config\Config $config
+ * @var \Security\CSRFProtectaroo $csrfProtect
  * @var \Database\DBExistaroo $dbExistaroo
  * @var \Auth\IsLoggedIn $is_logged_in
  */
 
 if ($is_logged_in->isLoggedIn() && $is_logged_in->isAdmin()) {
-    $page = new \View\Template(config: $config);
+    $page = new \View\Template(config: $config, csrf: $csrfProtect);
     $page->setTemplate("admin/migrate_tables.tpl.php");
     $pending = $dbExistaroo->getPendingMigrations();
     $page->set(name: "pending_migrations", value: $pending);
     $page->set(name: "has_pending_migrations", value: !empty($pending));
     $inner = $page->grabTheGoods();
 
-    $layout = new \View\Template(config: $config);
+    $layout = new \View\Template(config: $config, csrf: $csrfProtect);
     $layout->setTemplate("layout/base.tpl.php");
     $layout->set("page_title", "Migrations");
     $layout->set("username", $is_logged_in->getLoggedInUsername());

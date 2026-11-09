@@ -6,7 +6,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': <?= json_encode(csrf_token()) ?>
+                'X-CSRF-Token': <?= json_encode($csrf->getToken()) ?>
             },
             body: JSON.stringify({ migration: migration })
         })

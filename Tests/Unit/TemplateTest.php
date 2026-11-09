@@ -12,7 +12,30 @@ class TemplateTest extends Unit
     {
         $config = new \Config\Config();
         $config->app_path = dirname(__DIR__, 2);  // project root: real templates/
-        return new \View\Template($config);
+        return new \View\Template($config, new \Security\CSRFProtectaroo(new \Mlaphp\Request()));
+    }
+
+    public function testHandsTheCsrfProtectorToTheTemplate(): void
+    {
+        $root = sys_get_temp_dir() . '/template-csrf-' . bin2hex(random_bytes(4));
+        mkdir("$root/templates", 0700, true);
+        file_put_contents("$root/templates/form.tpl.php", '<?= $csrf->field() ?>');
+        $_SESSION = [];
+        try {
+            $csrf = new \Security\CSRFProtectaroo(new \Mlaphp\Request());
+            $config = new \Config\Config();
+            $config->app_path = $root;
+            $page = new \View\Template($config, csrf: $csrf);
+            $page->setTemplate("form.tpl.php");
+            $page->set('csrf', 'a page variable cannot replace it');
+
+            $this->assertSame($csrf->field(), $page->grabTheGoods());
+        } finally {
+            unset($_SESSION);
+            unlink("$root/templates/form.tpl.php");
+            rmdir("$root/templates");
+            rmdir($root);
+        }
     }
 
     public function testRendersTemplateWithVars(): void

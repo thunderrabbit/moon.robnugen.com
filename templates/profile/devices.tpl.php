@@ -43,7 +43,7 @@ $others = count(array_filter($devices, fn(\Auth\Device $d) => !$d->is_current));
                 <?php /* No button on this device: /logout/ signs out every device, not just this one. */ ?>
                 <?php if (!$device->is_current): ?>
                     <form action="/profile/devices/" method="POST">
-                        <?= csrf_field() ?>
+                        <?= $csrf->field() ?>
                         <input type="hidden" name="action" value="revoke" />
                         <input type="hidden" name="cookie_id" value="<?= (int) $device->cookie_id ?>" />
                         <input type="submit" value="Sign out" class="greyishBtn" />
@@ -55,7 +55,7 @@ $others = count(array_filter($devices, fn(\Auth\Device $d) => !$d->is_current));
 
     <?php if ($others > 0): ?>
         <form action="/profile/devices/" method="POST">
-            <?= csrf_field() ?>
+            <?= $csrf->field() ?>
             <input type="hidden" name="action" value="revoke_others" />
             <input type="submit" value="Sign out every other device" class="greyishBtn" />
         </form>

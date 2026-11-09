@@ -13,8 +13,14 @@ class Template
     /** @var array<string, mixed> */
     private array $vars = [];
 
-    public function __construct(\Config\Config $config)
-    {
+    /**
+     * @param \Security\CSRFProtectaroo $csrf Reaches the template as $csrf: a form
+     *        writes <?= $csrf->field() ?>, a fetch() caller json_encode($csrf->getToken()).
+     */
+    public function __construct(
+        \Config\Config $config,
+        private readonly \Security\CSRFProtectaroo $csrf,
+    ) {
         $this->template_dir = "{$config->app_path}/templates";
     }
 
@@ -58,6 +64,7 @@ class Template
 
         $charEncode = "UTF-8";
         extract($this->vars);           // Extract the vars to local namespace
+        $csrf = $this->csrf;            // After extract(), so a set('csrf') cannot replace it
 
         ob_start();                     // Start output buffering
         include($template_path);        // Include the file

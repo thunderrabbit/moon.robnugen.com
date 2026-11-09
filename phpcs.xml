@@ -20,8 +20,8 @@
     <rule ref="PSR12"/>
 
     <!-- prepend.php is the bootstrap every page includes: it runs the request
-         setup and also declares the few global helpers templates call
-         (csrf_field(), csrf_token(), print_rob()). Every other file stays
+         setup and also declares print_rob(), the one global helper.
+         Every other file stays
          either declarations or logic. -->
     <rule ref="PSR1.Files.SideEffects">
         <exclude-pattern>*/prepend.php</exclude-pattern>

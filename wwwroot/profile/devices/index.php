@@ -11,6 +11,7 @@ include_once $matches[1] . '/prepend.php';
  * Set up by prepend.php.
  *
  * @var \Config\Config $config
+ * @var \Security\CSRFProtectaroo $csrfProtect
  * @var \Auth\IsLoggedIn $is_logged_in
  */
 
@@ -38,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$page = new \View\Template(config: $config);
+$page = new \View\Template(config: $config, csrf: $csrfProtect);
 $page->setTemplate("profile/devices.tpl.php");
 $page->set("devices", $is_logged_in->devices());
 $page->set("error_message", $error_message);
@@ -46,7 +47,7 @@ $page->set("success_message", $success_message);
 
 $inner = $page->grabTheGoods();
 
-$layout = new \View\Template(config: $config);
+$layout = new \View\Template(config: $config, csrf: $csrfProtect);
 $layout->setTemplate("layout/base.tpl.php");
 $layout->set("username", $is_logged_in->getLoggedInUsername());
 $layout->set("is_admin", $is_logged_in->isAdmin());
