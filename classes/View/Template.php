@@ -14,12 +14,12 @@ class Template
     private array $vars = [];
 
     /**
-     * @param \Security\CSRFProtectaroo|null $csrf Reaches the template as $csrf: a form
+     * @param \Security\CSRFProtectaroo $csrf Reaches the template as $csrf: a form
      *        writes <?= $csrf->field() ?>, a fetch() caller json_encode($csrf->getToken()).
      */
     public function __construct(
         \Config\Config $config,
-        private readonly ?\Security\CSRFProtectaroo $csrf = null,
+        private readonly \Security\CSRFProtectaroo $csrf,
     ) {
         $this->template_dir = "{$config->app_path}/templates";
     }

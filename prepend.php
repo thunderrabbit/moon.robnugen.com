@@ -18,28 +18,6 @@ spl_autoload_register($autoloader->load(...));
 $mla_request = new \Mlaphp\Request();
 $csrfProtect = new \Security\CSRFProtectaroo($mla_request);
 
-/**
- * The hidden CSRF input for any POST form. Templates write <?= csrf_field() ?>
- * inside the <form>; no page-level set() is needed.
- */
-function csrf_field(): string
-{
-    /** @var \Security\CSRFProtectaroo $csrfProtect */
-    global $csrfProtect;
-    return $csrfProtect->field();
-}
-
-/**
- * The bare token, for fetch() callers that send it as the X-CSRF-Token header
- * (see templates/admin/migrate_tables.tpl.php). Always json_encode() it into JS.
- */
-function csrf_token(): string
-{
-    /** @var \Security\CSRFProtectaroo $csrfProtect */
-    global $csrfProtect;
-    return $csrfProtect->getToken();
-}
-
 // Every state-changing request must carry the session's token. Checked here,
 // before any page code or DB work, so a handler cannot forget it. A cross-site
 // POST fails because the attacking page cannot read our session's token.

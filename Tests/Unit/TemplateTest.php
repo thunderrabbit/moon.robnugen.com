@@ -12,7 +12,7 @@ class TemplateTest extends Unit
     {
         $config = new \Config\Config();
         $config->app_path = dirname(__DIR__, 2);  // project root: real templates/
-        return new \View\Template($config);
+        return new \View\Template($config, new \Security\CSRFProtectaroo(new \Mlaphp\Request()));
     }
 
     public function testHandsTheCsrfProtectorToTheTemplate(): void

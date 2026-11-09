@@ -19,9 +19,10 @@ use Mlaphp\Request;
  * a leak means XSS, at which point CSRF tokens are moot anyway.
  *
  * prepend.php instantiates this once and calls validateRequest() before any
- * page code runs, so a handler cannot forget the check. Templates emit the
- * hidden field with csrf_field(); fetch() callers send the X-CSRF-Token
- * header instead (see templates/admin/migrate_tables.tpl.php).
+ * page code runs, so a handler cannot forget the check. Each View\Template
+ * gets it as $csrf: forms emit the hidden field with $csrf->field(); fetch()
+ * callers send the X-CSRF-Token header instead (see
+ * templates/admin/migrate_tables.tpl.php).
  */
 class CSRFProtectaroo
 {
@@ -104,7 +105,7 @@ class CSRFProtectaroo
     }
 
     /**
-     * The hidden input for a POST form. Templates call csrf_field().
+     * The hidden input for a POST form. Templates write <?= $csrf->field() ?>.
      */
     public function field(): string
     {
