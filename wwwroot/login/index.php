@@ -11,6 +11,7 @@ include_once $matches[1] . '/prepend.php';
  * Set up by prepend.php.
  *
  * @var \Config\Config $config
+ * @var \Security\CSRFProtectaroo $csrfProtect
  * @var \Auth\IsLoggedIn $is_logged_in
  * @var \Mlaphp\Request $mla_request
  */
@@ -47,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     };
 }
 
-$page = new \View\Template(config: $config);
+$page = new \View\Template(config: $config, csrf: $csrfProtect);
 $page->setTemplate("login/index.tpl.php");
 $page->set("login_error", $login_error);
 $page->echoToScreen();
