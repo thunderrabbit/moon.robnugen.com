@@ -6,7 +6,7 @@ namespace Database;
 
 class DBExistaroo
 {
-    private const AUTOMATIC_SCHEMA_PREFIXES = [
+    private const array AUTOMATIC_SCHEMA_PREFIXES = [
         "00",
         "01",
     ];
@@ -22,9 +22,9 @@ class DBExistaroo
      * @param SchemaPath $schema_path Resolves migration files under db_schemas.
      */
     public function __construct(
-        private \Config\Config $config,
-        private \PDO $pdo,
-        private SchemaPath $schema_path,
+        private readonly \Config\Config $config,
+        private readonly \PDO $pdo,
+        private readonly SchemaPath $schema_path,
     ) {
     }
 
@@ -93,7 +93,7 @@ class DBExistaroo
     {
         try {
             return \Database\Base::databaseExists($this->config);
-        } catch (\Database\EDatabaseMissing $e) {
+        } catch (\Database\EDatabaseMissing) {
             return false;
         } catch (\Database\EDatabaseException $e) {
             throw new \Exception("Unexpected DB error: " . $e->getMessage());

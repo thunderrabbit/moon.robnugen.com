@@ -11,11 +11,11 @@ use Codeception\Test\Unit;
  */
 class CookieRepositoryTest extends Unit
 {
-    private const DAY = 86400;
-    private const IP = "\xCB\x00\x71\x07";   // 203.0.113.7 as inet_pton()
-    private const UA = 'd41d8cd98f00b204e9800998ecf8427e';
+    private const int DAY = 86400;
+    private const string IP = "\xCB\x00\x71\x07";   // 203.0.113.7 as inet_pton()
+    private const string UA = 'd41d8cd98f00b204e9800998ecf8427e';
 
-    private const PHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Safari/604.1';
+    private const string PHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) Safari/604.1';
 
     private \PDO $pdo;
     private \DateTimeImmutable $t0;
@@ -168,7 +168,7 @@ class CookieRepositoryTest extends Unit
      */
     private function labels(array $devices): array
     {
-        return array_map(fn(\Auth\Device $d) => $d->label(), $devices);
+        return array_map(fn(\Auth\Device $d): string => $d->label(), $devices);
     }
 
     public function testListShowsOnlyThisUsersLiveDevicesMostRecentlyUsedFirst(): void
@@ -193,7 +193,7 @@ class CookieRepositoryTest extends Unit
         $repo->issue(7, 'phone', self::IP, self::UA, self::DAY, self::PHONE);
         $repo->issue(7, 'laptop', self::IP, self::UA, self::DAY, self::PHONE);
 
-        $current = array_map(fn(\Auth\Device $d) => $d->is_current, $repo->listForUser(7, 'laptop'));
+        $current = array_map(fn(\Auth\Device $d): bool => $d->is_current, $repo->listForUser(7, 'laptop'));
         sort($current);
         $this->assertSame([false, true], $current);
     }

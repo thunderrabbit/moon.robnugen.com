@@ -12,7 +12,7 @@ namespace Database;
 class SchemaPath
 {
     public function __construct(
-        private string $app_path,
+        private readonly string $app_path,
     ) {
     }
 
@@ -25,7 +25,7 @@ class SchemaPath
         if (empty($versionWithFile)) {
             throw new \Exception("Migration version with file cannot be empty.");
         }
-        if (strpos($versionWithFile, '..') !== false) {
+        if (str_contains($versionWithFile, '..')) {
             throw new \Exception("Invalid migration path (traversal not allowed): $versionWithFile");
         }
         // Shape only, deliberately not `create_`: a migration may ALTER an existing

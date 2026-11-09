@@ -52,7 +52,7 @@ class Base
             \PDO::ATTR_EMULATE_PREPARES => false,
         ]);
 
-        $offset_minutes = intdiv((new \DateTime())->getOffset(), 60);
+        $offset_minutes = intdiv(new \DateTime()->getOffset(), 60);
         $pdo->exec(sprintf(
             "SET time_zone='%s%d:%02d'",
             $offset_minutes < 0 ? '-' : '+',
@@ -103,10 +103,8 @@ class Base
     {
         // Split SQL into individual statements
         $statements = array_filter(
-            array_map('trim', explode(';', $sql)),
-            function ($stmt) {
-                return !empty($stmt);
-            }
+            array_map(trim(...), explode(';', $sql)),
+            fn($stmt): bool => !empty($stmt)
         );
 
         foreach ($statements as $statement) {
