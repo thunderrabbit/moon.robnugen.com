@@ -134,7 +134,7 @@ This is a minimalist PHP web application framework designed for DreamHost deploy
   autoloader and no runtime dependencies. `vendor/` is gitignored — populate it with
   the containerized composer command below. Nothing in `vendor/` deploys.
 - Debug mode available via `?debug=1` URL parameter
-- Uses `print_rob()` function for debugging output
+- Uses `\PrintRob\Debug::printRob()` for debugging output
 - Error display enabled in `prepend.php` for development
 - Templates use `.tpl.php` extension and PHP template syntax
 
@@ -204,7 +204,7 @@ the current file. The URL only has to change.
 - No build step - pure PHP development (tests and style gates below)
 - PHP errors displayed on screen via `prepend.php` configuration
 - Debug mode: Add `?debug=1` to any URL for additional debugging output
-- Use `print_rob($variable)` function for debugging (similar to `var_dump` but formatted)
+- Use `\PrintRob\Debug::printRob($variable)` for debugging (similar to `var_dump` but formatted)
 
 ### Deploying a branch
 - `deploy_to_dh.sh` pushes the current branch to `origin`, then over ssh runs

@@ -29,20 +29,6 @@ if (!$csrfProtect->validateRequest()) {
     exit;
 }
 
-function print_rob(mixed $object, bool $exit = true): void
-{
-    echo "<pre>";
-    if (is_object($object) && method_exists($object, "toArray")) {
-        echo "ResultSet => " . print_r($object->toArray(), true);
-    } else {
-        print_r($object);
-    }
-    echo "</pre>";
-    if ($exit) {
-        exit;
-    }
-}
-
 try {
     $config = new \Config\Config();
     // @phpstan-ignore catch.neverThrown (the autoloader throws when Config.php is missing)
