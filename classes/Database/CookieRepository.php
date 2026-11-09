@@ -27,10 +27,10 @@ class CookieRepository
     /** How stale `last_access` may get before touch() writes it again. */
     private const int TOUCH_EVERY_SECONDS = 3600;
 
-    private \DateTimeImmutable $now;
+    private readonly \DateTimeImmutable $now;
 
     public function __construct(
-        private \PDO $di_pdo,
+        private readonly \PDO $di_pdo,
         ?\DateTimeImmutable $now = null,
     ) {
         $this->now = $now ?? new \DateTimeImmutable();

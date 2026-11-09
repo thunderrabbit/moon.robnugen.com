@@ -22,9 +22,9 @@ class DBExistaroo
      * @param SchemaPath $schema_path Resolves migration files under db_schemas.
      */
     public function __construct(
-        private \Config\Config $config,
-        private \PDO $pdo,
-        private SchemaPath $schema_path,
+        private readonly \Config\Config $config,
+        private readonly \PDO $pdo,
+        private readonly SchemaPath $schema_path,
     ) {
     }
 

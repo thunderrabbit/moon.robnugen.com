@@ -6,7 +6,7 @@ namespace View;
 
 class Template
 {
-    private string $template_dir;
+    private readonly string $template_dir;
 
     private ?string $template_file = null;
 

@@ -12,7 +12,7 @@ namespace Database;
 class SchemaPath
 {
     public function __construct(
-        private string $app_path,
+        private readonly string $app_path,
     ) {
     }
 

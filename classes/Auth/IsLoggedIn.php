@@ -16,11 +16,11 @@ class IsLoggedIn
 
     private string $loggedInUsername = 'YUNOset?'; // default value, should be overwritten if user is logged in
     public function __construct(
-        private \PDO $di_pdo,
-        private \Config\Config $di_config,
-        private RandomToken $di_token,
-        private LoginThrottle $di_throttle,
-        private \Database\CookieRepository $di_cookies,
+        private readonly \PDO $di_pdo,
+        private readonly \Config\Config $di_config,
+        private readonly RandomToken $di_token,
+        private readonly LoginThrottle $di_throttle,
+        private readonly \Database\CookieRepository $di_cookies,
     ) {
     }
 
