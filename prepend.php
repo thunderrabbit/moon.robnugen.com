@@ -79,3 +79,12 @@ $is_logged_in = new \Auth\IsLoggedIn(
 // Read-only: who does the remember-me cookie say this is? Credentials are
 // checked by /login/index.php alone, never here.
 $is_logged_in->resumeFromCookie($mla_request);
+
+// How many schema files wait for an admin. Counted again here on purpose:
+// the list checkaroo() built is from before its auto-apply, so it is stale
+// on exactly the requests that change it. Nobody but an admin is counted,
+// and no query runs for anyone else.
+$admin_count = 0;
+if ($is_logged_in->isLoggedIn() && $is_logged_in->isAdmin()) {
+    $admin_count = count($dbExistaroo->getPendingMigrations());
+}

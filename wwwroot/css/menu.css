@@ -71,3 +71,17 @@
     font-weight: normal;
     font-size: 0.8em;
 }
+
+/* Migrations waiting for an admin, a pill inside the Admin link. inline-block
+   keeps the link's hover underline off it. */
+.NavBar .AdminCount {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 0.4em;
+    border-radius: 999px;
+    background: var(--accent, #0366a8);
+    color: var(--panel, #ffffff);
+    font-size: 0.8em;
+    line-height: 1.5;
+    text-align: center;
+}

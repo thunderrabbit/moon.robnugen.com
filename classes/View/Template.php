@@ -16,10 +16,13 @@ class Template
     /**
      * @param \Security\CSRFProtectaroo $csrf Reaches the template as $csrf: a form
      *        writes <?= $csrf->field() ?>, a fetch() caller json_encode($csrf->getToken()).
+     * @param int $admin_count Pending migrations an admin has yet to apply; reaches the
+     *        menu as $admin_count. Required, so a page that forgets it fails PHPStan.
      */
     public function __construct(
         \Config\Config $config,
         private readonly \Security\CSRFProtectaroo $csrf,
+        private readonly int $admin_count,
     ) {
         $this->template_dir = "{$config->app_path}/templates";
     }
@@ -65,6 +68,7 @@ class Template
         $charEncode = "UTF-8";
         extract($this->vars);           // Extract the vars to local namespace
         $csrf = $this->csrf;            // After extract(), so a set('csrf') cannot replace it
+        $admin_count = $this->admin_count;  // likewise, after extract()
 
         ob_start();                     // Start output buffering
         include($template_path);        // Include the file

@@ -8,11 +8,11 @@ use Codeception\Test\Unit;
 
 class TemplateTest extends Unit
 {
-    private function template(): \View\Template
+    private function template(int $admin_count = 0): \View\Template
     {
         $config = new \Config\Config();
         $config->app_path = dirname(__DIR__, 2);  // project root: real templates/
-        return new \View\Template($config, new \Security\CSRFProtectaroo(new \Mlaphp\Request()));
+        return new \View\Template($config, new \Security\CSRFProtectaroo(new \Mlaphp\Request()), $admin_count);
     }
 
     public function testHandsTheCsrfProtectorToTheTemplate(): void
@@ -25,7 +25,7 @@ class TemplateTest extends Unit
             $csrf = new \Security\CSRFProtectaroo(new \Mlaphp\Request());
             $config = new \Config\Config();
             $config->app_path = $root;
-            $page = new \View\Template($config, csrf: $csrf);
+            $page = new \View\Template($config, csrf: $csrf, admin_count: 0);
             $page->setTemplate("form.tpl.php");
             $page->set('csrf', 'a page variable cannot replace it');
 
@@ -164,5 +164,58 @@ class TemplateTest extends Unit
 
         $this->assertStringContainsString('<h1>&lt;b&gt;Games&lt;/b&gt;</h1>', $html);
         $this->assertStringContainsString('href="/login/"', $html);
+    }
+
+    private function menu(int $admin_count, string $username, bool $is_admin, int $set = -1): string
+    {
+        $layout = $this->template($admin_count);
+        $layout->setTemplate("layout/base.tpl.php");
+        $layout->set('page_content', 'hello');
+        $layout->set('username', $username);
+        $layout->set('is_admin', $is_admin);
+        if ($set >= 0) {
+            $layout->set('admin_count', $set);
+        }
+        return $layout->grabTheGoods();
+    }
+
+    public function testSetCannotReplaceTheConstructorsAdminCount(): void
+    {
+        $html = $this->menu(3, 'rob', true, 99);
+
+        $this->assertStringContainsString('class="AdminCount" aria-hidden="true">3<', $html);
+        $this->assertStringNotContainsString('99', $html);
+    }
+
+    public function testAdminWithPendingMigrationsSeesChipAndLabel(): void
+    {
+        $html = $this->menu(3, 'rob', true);
+
+        $this->assertStringContainsString('aria-label="Admin, 3 waiting for an admin"', $html);
+        $this->assertStringContainsString('class="AdminCount"', $html);
+    }
+
+    public function testAdminWithNoneSeesThePlainLink(): void
+    {
+        $html = $this->menu(0, 'rob', true);
+
+        $this->assertStringContainsString('<a href="/admin/">Admin</a>', $html);
+        $this->assertStringNotContainsString('AdminCount', $html);
+    }
+
+    public function testPlainUserNeverSeesTheCount(): void
+    {
+        $html = $this->menu(3, 'sam', false);
+
+        $this->assertStringNotContainsString('AdminCount', $html);
+        $this->assertStringNotContainsString('href="/admin/"', $html);
+    }
+
+    public function testLoggedOutVisitorNeverSeesTheCount(): void
+    {
+        $html = $this->menu(3, '', false);
+
+        $this->assertStringNotContainsString('AdminCount', $html);
+        $this->assertStringNotContainsString('href="/admin/"', $html);
     }
 }
