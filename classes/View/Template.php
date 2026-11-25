@@ -20,7 +20,7 @@ class Template
      *        menu as $admin_count. Required, so a page that forgets it fails PHPStan.
      */
     public function __construct(
-        \Config\Config $config,
+        \Config\Settings $config,
         private readonly \Security\CSRFProtectaroo $csrf,
         private readonly int $admin_count,
     ) {
