@@ -232,6 +232,13 @@ handed to every `View\Template` as `$admin_count`. `notifications` (`Admin\Notif
 migration, never in that file. Every time is UTC written from PHP, never `NOW()`. A missing table or any
 database error counts 0, so the count never stops a page. **Migrations never go in the table and can
 never be completed**: applying them is the only way out.
+`/admin/notifications/` lists the due ones, each with a Completed button (`complete()`: due rows only,
+false on a second press). A row's link is drawn only if `Admin\SitePath::is()` says it is a path on this
+site. Its "Remind me" form (`remind()`, answering `Admin\RemindResult`) adds a row to this site's database:
+a day (shown from 00:00 UTC; a past day is due at once), a message of up to 1000 characters and an optional
+link, refused unless it is a site path. A refused form is drawn again with what was typed. Upcoming rows
+(`listUpcoming()`) are listed below it with no button: **nothing edits or cancels one yet**, so a typo is
+fixed in phpMyAdmin.
 
 ## Cache-busting assets
 
