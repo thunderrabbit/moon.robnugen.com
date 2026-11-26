@@ -5,7 +5,7 @@
  * Reads two layout vars, both optional:
  *   $username  logged-in user's name; '' or unset means logged out
  *   $is_admin  true shows the Admin link
- *   $admin_count  migrations waiting for an admin; above 0 it rides in the Admin link
+ *   $admin_count  migrations and due notifications waiting for an admin; above 0 it rides in the Admin link
  */
 $menu_logged_in = isset($username) && is_string($username) && $username !== '';
 $menu_is_admin = $menu_logged_in && ($is_admin ?? false) === true;

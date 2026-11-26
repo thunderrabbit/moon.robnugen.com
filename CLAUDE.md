@@ -223,6 +223,16 @@ This leverages DreamHost's consistent `/home/username/domain.com/` path structur
 - Each **file** is tracked separately in `applied_DB_versions` as `<dir>/<filename>`. Renaming
   an already-applied file re-runs it, because that path string is the key.
 
+## Admin notifications
+
+mg #851. Admins see a count in the menu's Admin link: pending migrations plus due notifications
+(`show_from <= now` in UTC, `completed_at` NULL), worked out in `prepend.php` for admins only and
+handed to every `View\Template` as `$admin_count`. `notifications` (`Admin\Notifications`) is created
+**empty** from `01_gumdrop_cloud/create_notifications.sql`; a site's own rows go in a later, numbered
+migration, never in that file. Every time is UTC written from PHP, never `NOW()`. A missing table or any
+database error counts 0, so the count never stops a page. **Migrations never go in the table and can
+never be completed**: applying them is the only way out.
+
 ## Cache-busting assets
 
 DreamHost caches `.css`/`.js` for 30 days, so asset URLs carry a semver path segment
