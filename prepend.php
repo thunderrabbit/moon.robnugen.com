@@ -9,6 +9,9 @@ require_once __DIR__ . '/classes/Mlaphp/Autoloader.php';
 $autoloader = new \Mlaphp\Autoloader();
 spl_autoload_register($autoloader->load(...));
 
+// Before anything that relies on 8.6's session defaults.
+\Version\Php::requireFloor();
+
 // Errors go to the log until Config says otherwise, below.
 \Security\ErrorOutput::hide();
 

@@ -13,6 +13,9 @@ include_once $matches[1] . '/classes/Mlaphp/Autoloader.php';
 $autoloader = new \Mlaphp\Autoloader();
 spl_autoload_register($autoloader->load(...));
 
+// Runs without prepend.php, so it asks itself.
+\Version\Php::requireFloor();
+
 // Errors go to the log until Config says otherwise, below.
 \Security\ErrorOutput::hide();
 

@@ -286,6 +286,14 @@ All three must pass (or the change is not commit-ready). Setup and fixing:
   together. `config.platform.php` pins resolution to php 8.5 (the runner's php) —
   don't remove it, or composer will resolve packages too new to parse.
 
+  The **runtime floor is PHP 8.6**, and it is higher than the line above:
+  `\Version\Php::requireFloor()` runs first in `prepend.php` and in `register.php`
+  (which skips `prepend.php`), and answers 503 on anything older. The tooling
+  (`composer.json`, `phpstan.neon`, the commit hook) may trail the floor on the PHP the
+  gates run on while no runner image exists for the newest PHP. Use no 8.6-only syntax
+  until they catch up. Any new entry point that skips `prepend.php` must call
+  `requireFloor()` itself.
+
 - Style failures: auto-fix first, then re-check:
 
       docker run --rm --network none -v "$PWD":/app -w /app \
