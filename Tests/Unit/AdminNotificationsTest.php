@@ -184,4 +184,89 @@ class AdminNotificationsTest extends Unit
 
         $this->assertFalse($this->notifications()->complete(1, 7));
     }
+
+    /** One value, as a string: SQLite hands every column back as one here. */
+    private function scalar(string $sql): string
+    {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        $value = $stmt->fetchColumn();
+        return is_scalar($value) ? (string) $value : '';
+    }
+
+    public function testRemindAddsAnUpcomingRowFromMidnightUtc(): void
+    {
+        $this->createTable();
+
+        $result = $this->notifications()->remind('2027-05-02', "  Look again \n", ' /profile/ ');
+
+        $this->assertSame(\Admin\RemindResult::Added, $result);
+        $upcoming = $this->notifications()->listUpcoming();
+        $this->assertCount(1, $upcoming);
+        $this->assertSame('Look again', $upcoming[0]->message);
+        $this->assertSame('/profile/', $upcoming[0]->link);
+        $this->assertSame('2027-05-02 00:00:00', $upcoming[0]->show_from);
+        $this->assertSame('2027-04-01 00:00:00', $this->scalar("SELECT created_at FROM notifications"));
+    }
+
+    public function testRemindWithNoLinkStoresNull(): void
+    {
+        $this->createTable();
+
+        $this->assertSame(\Admin\RemindResult::Added, $this->notifications()->remind('2027-05-02', 'm', ''));
+        $this->assertNull($this->notifications()->listUpcoming()[0]->link);
+    }
+
+    public function testRemindForAPastDayIsDueAtOnce(): void
+    {
+        $this->createTable();
+
+        $this->assertSame(\Admin\RemindResult::Added, $this->notifications()->remind('2027-04-01', 'm', null));
+        $this->assertSame(1, $this->notifications()->dueCount());
+    }
+
+    public function testRemindRefusesADateThatIsNotOne(): void
+    {
+        $this->createTable();
+        $n = $this->notifications();
+
+        foreach (['', '2027-02-30', '2027-5-2', '02/05/2027', '2027-05-02 10:00:00', ['2027-05-02'], null] as $bad) {
+            $this->assertSame(\Admin\RemindResult::BadDate, $n->remind($bad, 'm', ''));
+        }
+        $this->assertSame(0, (int) $this->scalar("SELECT COUNT(*) FROM notifications"));
+    }
+
+    public function testRemindRefusesAnEmptyOrOverlongMessage(): void
+    {
+        $this->createTable();
+        $n = $this->notifications();
+
+        $this->assertSame(\Admin\RemindResult::BadMessage, $n->remind('2027-05-02', "  \n ", ''));
+        $this->assertSame(\Admin\RemindResult::BadMessage, $n->remind('2027-05-02', ['m'], ''));
+        $this->assertSame(\Admin\RemindResult::BadMessage, $n->remind('2027-05-02', str_repeat('é', 1001), ''));
+        $this->assertSame(\Admin\RemindResult::Added, $n->remind('2027-05-02', str_repeat('é', 1000), ''));
+    }
+
+    public function testRemindRefusesALinkThatIsNotAPathOnThisSite(): void
+    {
+        $this->createTable();
+        $n = $this->notifications();
+
+        $not_paths = [
+            'https://evil.example/',
+            '//evil.example',
+            'javascript:alert(1)',
+            'profile/',
+            '/' . str_repeat('a', 255),
+        ];
+        foreach ($not_paths as $bad) {
+            $this->assertSame(\Admin\RemindResult::BadLink, $n->remind('2027-05-02', 'm', $bad));
+        }
+        $this->assertSame(0, (int) $this->scalar("SELECT COUNT(*) FROM notifications"));
+    }
+
+    public function testRemindWithoutTheTableFails(): void
+    {
+        $this->assertSame(\Admin\RemindResult::Failed, $this->notifications()->remind('2027-05-02', 'm', ''));
+    }
 }
