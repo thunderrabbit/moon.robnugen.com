@@ -41,9 +41,9 @@ class Argon2idTest extends Unit
 
     public function testTheTrialMakesARealHashWhereThisPhpCan(): void
     {
-        if (!Argon2id::isListed()) {
-            $this->markTestSkipped('this PHP has no argon2id');
-        }
+        // The runner's PHP has argon2id, as PasswordHashTest assumes too, so
+        // a runner without it fails here rather than skipping quietly.
+        $this->assertTrue(Argon2id::isListed());
         $this->assertIsInt(Argon2id::trialMilliseconds());
         $this->assertStringStartsWith('argon2id available', Argon2id::report());
     }
