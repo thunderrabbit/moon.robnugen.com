@@ -313,4 +313,12 @@ All three must pass (or the change is not commit-ready). Setup and fixing:
   one-line log entry without the stack trace (a trace carries arguments). `$config->display_errors
   = true` calls `show()` and puts everything back on screen. Never set that on a site strangers
   can reach, and never `ini_set('display_errors', ...)` anywhere else.
+- **Security headers.** `Security\Headers::send()` runs right after `ErrorOutput::hide()` in `prepend.php`
+  and `/login/register.php` (the one entry point without `prepend.php`), before any output, so error
+  pages carry them too. `Headers::all()` is the list: `X-Content-Type-Options: nosniff`,
+  `Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'`, `X-Frame-Options: DENY`,
+  `Referrer-Policy: same-origin`, `Strict-Transport-Security: max-age=31536000`. No `script-src`: the
+  templates carry inline scripts, and a policy allowing those would promise more than it delivers. No
+  `includeSubDomains` on HSTS: a site must not decide that for hosts it does not run. A new entry
+  point that skips `prepend.php` must call `send()` itself.
 - Template system supports debug context via `?debug=1` parameter

@@ -12,6 +12,9 @@ spl_autoload_register($autoloader->load(...));
 // Errors go to the log until Config says otherwise, below.
 \Security\ErrorOutput::hide();
 
+// Before any output, so the error pages below carry them too.
+\Security\Headers::send();
+
 \Auth\Session::start();
 
 $mla_request = new \Mlaphp\Request();
