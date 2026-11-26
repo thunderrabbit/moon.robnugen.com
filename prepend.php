@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 const SENTIMENTAL_VERSION = "Every device you sign in on";
 
-# write errors to screen
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 require_once __DIR__ . '/classes/Mlaphp/Autoloader.php';
 // create autoloader instance and register the method with SPL
 $autoloader = new \Mlaphp\Autoloader();
 spl_autoload_register($autoloader->load(...));
+
+// Errors go to the log until Config says otherwise, below.
+\Security\ErrorOutput::hide();
 
 \Auth\Session::start();
 
@@ -36,6 +34,11 @@ try {
 } catch (\Exception $e) {
     echo "Couldn't create Config cause " . $e->getMessage();
     exit;
+}
+
+// @phpstan-ignore nullCoalesce.property (an older Config.php may not declare it)
+if ($config->display_errors ?? false) {
+    \Security\ErrorOutput::show();
 }
 
 $mla_database = \Database\Base::getPDO($config);
