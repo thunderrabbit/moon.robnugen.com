@@ -205,7 +205,10 @@ class TemplateTest extends Unit
         $html = $this->menu(3, 'rob', true, 99);
 
         $this->assertStringContainsString('class="AdminCount" aria-hidden="true">3<', $html);
-        $this->assertStringNotContainsString('99', $html);
+        // Only where a count would show: the page also carries a random CSRF
+        // token, which holds "99" about one time in five.
+        $this->assertStringNotContainsString('>99<', $html);
+        $this->assertStringNotContainsString('Admin, 99', $html);
     }
 
     public function testAdminWithPendingMigrationsSeesChipAndLabel(): void
