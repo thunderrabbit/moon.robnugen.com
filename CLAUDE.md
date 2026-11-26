@@ -173,7 +173,6 @@ This is a minimalist PHP web application framework designed for DreamHost deploy
 - Composer is dev-only (codeception, phpcs); the app itself is pure PHP with a custom
   autoloader and no runtime dependencies. `vendor/` is gitignored — populate it with
   the containerized composer command below. Nothing in `vendor/` deploys.
-- Debug mode available via `?debug=1` URL parameter
 - Uses `\PrintRob\Debug::printRob()` for debugging output
 - Errors are logged, not displayed, unless `Config.php` sets `$display_errors = true`
 - Templates use `.tpl.php` extension and PHP template syntax
@@ -244,7 +243,6 @@ the current file. The URL only has to change.
 - No build step - pure PHP development (tests and style gates below)
 - PHP errors go to the error log; set `$display_errors = true` in your own `Config.php` to see them
   on screen
-- Debug mode: Add `?debug=1` to any URL for additional debugging output
 - Use `\PrintRob\Debug::printRob($variable)` for debugging (similar to `var_dump` but formatted)
 
 ### Deploying a branch
@@ -345,4 +343,3 @@ All three must pass (or the change is not commit-ready). Setup and fixing:
   templates carry inline scripts, and a policy allowing those would promise more than it delivers. No
   `includeSubDomains` on HSTS: a site must not decide that for hosts it does not run. A new entry
   point that skips `prepend.php` must call `send()` itself.
-- Template system supports debug context via `?debug=1` parameter
