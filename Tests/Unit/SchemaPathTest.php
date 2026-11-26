@@ -53,4 +53,27 @@ class SchemaPathTest extends Unit
         $this->assertStringEndsWith('create_users.sql', $result);
         $this->assertFileExists($result);
     }
+
+    public function testResolveRefusesSiblingSharingTheBasePrefix(): void
+    {
+        $root = sys_get_temp_dir() . '/schemapath_' . bin2hex(random_bytes(6));
+        mkdir($root . '/db_schemas/00_test', 0777, true);
+        mkdir($root . '/db_schemas_old/00_test', 0777, true);
+        file_put_contents($root . '/db_schemas_old/00_test/create_x.sql', '');
+        symlink($root . '/db_schemas_old/00_test/create_x.sql', $root . '/db_schemas/00_test/create_x.sql');
+
+        try {
+            $this->expectException(\Exception::class);
+            $this->expectExceptionMessage('escapes base directory');
+            new \Database\SchemaPath($root)->resolve('00_test/create_x.sql');
+        } finally {
+            unlink($root . '/db_schemas/00_test/create_x.sql');
+            unlink($root . '/db_schemas_old/00_test/create_x.sql');
+            rmdir($root . '/db_schemas/00_test');
+            rmdir($root . '/db_schemas_old/00_test');
+            rmdir($root . '/db_schemas');
+            rmdir($root . '/db_schemas_old');
+            rmdir($root);
+        }
+    }
 }
