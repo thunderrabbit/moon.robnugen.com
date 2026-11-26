@@ -12,6 +12,7 @@ include_once $matches[1] . '/prepend.php';
  *
  * @var \Config\Config $config
  * @var \Security\CSRFProtectaroo $csrfProtect
+ * @var \PDO $mla_database
  * @var \Database\DBExistaroo $dbExistaroo
  * @var \Auth\IsLoggedIn $is_logged_in
  * @var int $admin_count
@@ -32,6 +33,8 @@ if ($is_logged_in->isLoggedIn() && $is_logged_in->isAdmin()) {
 
     // Asked here because this is the served PHP; see Auth\Argon2id.
     $page->set(name: "password_hashing", value: \Auth\Argon2id::report());
+
+    $page->set(name: "due_notifications", value: new \Admin\Notifications($mla_database)->dueCount());
 
     $pending = $dbExistaroo->getPendingMigrations();
     $page->set(name: "has_pending_migrations", value: !empty($pending));
