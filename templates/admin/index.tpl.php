@@ -4,6 +4,7 @@
 <h1>Welcome to the <?= htmlspecialchars($site_title) ?> Admin Dashboard</h1>
 <p>Registration is <strong><?= $allow_registration ? 'open' : 'closed' ?></strong> to new users.
    Change <code>$allow_registration</code> in <code>classes/Config/Config.php</code>.</p>
+<p>Password hashing: <?= htmlspecialchars($password_hashing ?? 'not checked') ?>.</p>
 <?php
 if ($has_pending_migrations) {
         echo "<h3>Pending DB Migrations</h3>";
