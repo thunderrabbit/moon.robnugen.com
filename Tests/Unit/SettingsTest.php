@@ -172,8 +172,8 @@ class SettingsTest extends Unit
 
         $this->expectException(\Error::class);
         $this->expectExceptionMessage('readonly');
-        // @phpstan-ignore assign.propertyProtectedSet (the point of the test)
-        $settings->allow_registration = false;
+        // Through reflection, which PHPStan does not refuse, so PHP is the one that does.
+        new \ReflectionProperty($settings, 'allow_registration')->setValue($settings, false);
     }
 
     public function testDumpHidesThePassword(): void
